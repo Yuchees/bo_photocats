@@ -22,7 +22,7 @@ test_id = np.array([i for i in range(100)])
 train_y = y_test(x=full_X[train_id], noise_sigma=1e-3)
 
 gpr = GaussianProcessRegressor(
-    distance='precomputed', distance_matrix=ds,
+    kernel='precomputed', kernel_matrix=ds,
     length_scale=np.array([1, 1]),
     length_scale_bounds=(1e-4, 1e4)
 )
@@ -39,14 +39,14 @@ plt.scatter(full_X[train_id], train_y, label="train", c="red", marker="x")
 plt.legend()
 
 # Test the Bayes loop
-dist_matrix = np.load('../../data/opt_conditions/dis_matrix.pkl',
+dist_matrix = np.load('./data/opt_conditions/dis_matrix.pkl',
                       allow_pickle=True)
-df_exp = pd.read_excel('../data/opt_conditions/exp_results.xlsx',
-                       sheet_name='step_0')
+df_exp = pd.read_excel('./data/opt_conditions/exp_results.xlsx',
+                       sheet_name='step_0', index_col=0)
 df_reactions = pd.read_pickle(
-    '../../data/opt_conditions/df_reaction_conditions.pkl')
-train_x_id = df_exp.idx.values
-train_y = df_exp['yield'].values.reshape(-1, 1) / 100
+    './data/opt_conditions/df_reaction_conditions.pkl')
+train_x_id = df_exp.index.values
+train_y = df_exp['yield'].values.reshape(-1, 1)
 test_id = np.array([i for i in range(4500)])
 # Hyper parameters
 gpr_kwargs = {
@@ -64,7 +64,7 @@ bo_kwargs = {
 # Init the optimiser
 opt = BayesOptimizer(
     base_estimator=GaussianProcessRegressor(
-        distance_matrix=dist_matrix, **gpr_kwargs
+        kernel_matrix=dist_matrix, **gpr_kwargs
     ),
     sampling=test_id.reshape(-1, 1),
     **bo_kwargs

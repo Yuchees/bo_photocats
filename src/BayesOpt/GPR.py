@@ -47,14 +47,14 @@ class GaussianProcessRegressor:
         <https://gaussianprocess.org/gpml/chapters/RW2.pdf>`
     """
 
-    def __init__(self, distance='precomputed', distance_matrix=None,
+    def __init__(self, kernel='precomputed', kernel_matrix=None,
                  length_scale=1, length_scale_bounds=(1e-4, 1e4),
                  constant=1, constant_bounds=(1e-4, 1e4),
                  noise=1e-3, random_seed=0, n_restarts_optimiser=100,
                  optimize='lbfgs'):
 
-        self.k_matrix = distance_matrix
-        self.distance = distance
+        self.k_matrix = kernel_matrix
+        self.kernel = kernel
         self._train_X, self._train_y = None, None
         self.length_scale = np.asarray(length_scale)
         self.length_scale_bounds = length_scale_bounds
@@ -65,11 +65,11 @@ class GaussianProcessRegressor:
         self.n_restarts_optimiser = n_restarts_optimiser
         self._is_fit = False
         self.optimize = optimize
-        if distance is not 'euclidean':
-            assert self.length_scale.shape[0] == distance_matrix.shape[0], \
+        if kernel != 'euclidean':
+            assert self.length_scale.shape[0] == kernel_matrix.shape[0], \
                 'The length scale dim ({}) must equal to the kernel ' \
                 'matrix dim ({}).'.format(self.length_scale.shape[0],
-                                          distance_matrix.shape[0])
+                                          kernel_matrix.shape[0])
 
     @property
     def X_train_(self):
@@ -241,13 +241,13 @@ class GaussianProcessRegressor:
         return params_opt, func_min
 
     def _kernels(self, x1, x2):
-        if self.distance == 'euclidean':
+        if self.kernel == 'euclidean':
             # RBF kernel
             x1 = x1 / self.length_scale
             x2 = x2 / self.length_scale
             dists = (np.sum(x1 ** 2, 1).reshape(-1, 1) + np.sum(x2 ** 2, 1) -
                      2 * np.dot(x1, x2.T)) ** 2
-        elif self.distance == 'precomputed':
+        elif self.kernel == 'precomputed':
             # Precomputed kernel
             l = self.length_scale.reshape((-1, 1, 1))
             dists = sum(self.k_matrix[:, x1.reshape(-1, ), :][:, :,

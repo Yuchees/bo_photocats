@@ -202,6 +202,41 @@ def ks_selection(distance_matrix, n_examples, init=None):
     return subset
 
 
+def ks_selection_old(similarity_matrix, n_examples):
+    """
+    Representative subset selection with the Kennard-Stone algorithm
+
+    :param similarity_matrix: Precomputed similarity matrix
+    :param n_examples: The number of selected examples
+    :type similarity_matrix: numpy.ndarray
+    :type n_examples: int
+    :return: Example index
+    :rtype: list
+    """
+    from random import choice
+    if type(n_examples) != int:
+        raise TypeError('The number of examples must be an integer.')
+    elif n_examples < 3:
+        raise ValueError('The number of examples must be '
+                         'equal or greater than 2.')
+    sub_set = []
+    farthest_pars = np.where(similarity_matrix == np.max(similarity_matrix))
+    sub_set.append(farthest_pars[0][0])
+    sub_set.append(farthest_pars[1][0])
+
+    def pick_longest(selected_dis_matrix):
+        separation_dis = np.min(selected_dis_matrix, axis=0)
+        index_array = np.where(separation_dis == np.max(separation_dis))[0]
+        elements = np.unique(index_array).tolist()
+        return choice(elements)
+
+    for i in range(n_examples-2):
+        dis_matrix = similarity_matrix[sub_set, :]
+        new_example = pick_longest(dis_matrix)
+        sub_set.append(new_example)
+    return sub_set
+
+
 if __name__ == '__main__':
     import pickle
     features = np.array([

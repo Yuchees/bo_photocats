@@ -152,7 +152,7 @@ def load_exp_data(exp_df_path, sheet_name, samples, return_df=False):
         Only returned when return_df is True.
     """
     exp_df = pd.read_excel(
-        exp_df_path, index_col=0, sheet_name=sheet_name
+        exp_df_path, index_col='ID', sheet_name=sheet_name
     ).loc[:, ['name', 'smiles', 'yield']]
     exp_index = exp_df.index.tolist()
     x = samples[exp_index]
@@ -184,8 +184,8 @@ def get_next_df(suggested_x, parallel_param, samples, df):
     """
     suggested_x = np.array(suggested_x).reshape(-1, 5)
     next_x_id = find_same_points(samples, suggested_x)
-    next_df = df.loc[next_x_id, : 'SMILE']
-    next_df = next_df.reindex(columns=['name', 'SMILE', 'kappa'])
+    next_df = df.loc[next_x_id, : 'smiles']
+    next_df = next_df.reindex(columns=['name', 'smiles', 'kappa'])
     next_df.kappa = parallel_param['kappa']
     return next_df
 
