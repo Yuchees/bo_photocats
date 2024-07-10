@@ -2,6 +2,7 @@ numpy
 scipy
 scikit-learn
 rdkit
+matplotlib
 plotly
 ipywidgets
 pandas
